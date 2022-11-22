@@ -1,0 +1,34 @@
+{
+  "name": "wwebsocket",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "type": "commonjs",
+  "license": "ISC",
+  "nodemonConfig": {
+    "ignore": [
+      "baileys_auth_info/"
+    ]
+  },
+  "dependencies": {
+    "@adiwajshing/baileys": "^4.4.0",
+    "@hapi/boom": "^10.0.0",
+    "axios": "^0.27.2",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.2",
+    "googleapis": "^107.0.0",
+    "link-preview-js": "^2.1.19",
+    "mongodb": "^4.9.1",
+    "node-cron": "^3.0.2",
+    "node-fetch": "^3.3.0",
+    "node-fetch-commonjs": "^3.2.4",
+    "papaparse": "^5.3.2",
+    "pino": "^8.5.0",
+    "qrcode-terminal": "^0.12.0",
+    "wa-sticker-formatter": "^4.3.2"
+  }
+}

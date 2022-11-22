@@ -1,0 +1,9 @@
+.env
+package-lock.json
+assets/Shopee-csv/
+cantik.png
+logo-shopee.png
+shopee.jpg
+shopee.png
+credentials.json
+node_modules/
