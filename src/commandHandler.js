@@ -36,6 +36,10 @@ const {
     meme,
     onecak,
 } = require("./restAPIHandler");
+
+//mysql
+const { checkNomorHp } = require('./middleware/db-command');
+
 const { kirimPromosi } = require("./shoppe");
 const papa = require("papaparse");
 
@@ -480,7 +484,7 @@ async function commandHandler(chat, client, message, command) {
                 await resetWelcomingMessage();
                 break;
             case caption.toLowerCase().includes("testing"):
-                await kirimPromosi(from,client);
+                await checkNomorHp(from);
                 break;
             default:
                 break;
