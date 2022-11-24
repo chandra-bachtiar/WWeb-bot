@@ -1,7 +1,6 @@
 const { createSticker, StickerTypes } = require("wa-sticker-formatter");
 const { chatType } = require("./chatType");
 const { downloadMediaMessage, delay } = require("@adiwajshing/baileys");
-const { searchconsole } = require("googleapis/build/src/apis/searchconsole");
 const fs = require("fs");
 const {
     checkNomor,
@@ -77,7 +76,6 @@ async function commandHandler(chat, client, message, command) {
         //add increment
         if(msgType.valid) {
             await addIncrement(from);
-
             //send ads
             let dataNomor = await checkNomor(from);
             if(dataNomor.increment % 5 == 0) {
