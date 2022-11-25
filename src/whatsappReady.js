@@ -1,5 +1,5 @@
 const cron = require("node-cron");
-const { resetWelcomingMessage } = require("./dbCommand");
+const { resetWelcomingMessage } = require("./middleware/db-command");
 
 const botname = process.env.BOTNAME;
 function whatsappReady(client) {

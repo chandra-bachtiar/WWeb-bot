@@ -8,11 +8,8 @@ const {
     updateLastSeen,
     welcomingMessage,
     resetWelcomingMessage,
-    insertBarang,
-    getDataBarang,
-    getSingleDataBarang,
     addIncrement,
-} = require("./dbCommand");
+} = require("./middleware/db-command");
 const {
     motivasi,
     bucinquote,
@@ -37,10 +34,9 @@ const {
 } = require("./restAPIHandler");
 
 //mysql
-const { checkNomorHp } = require('./middleware/db-command');
+const { checkNomorHp } = require("./middleware/db-command");
 
 const { kirimPromosi } = require("./shoppe");
-const papa = require("papaparse");
 
 const botname = process.env.BOTNAME;
 
@@ -74,12 +70,12 @@ async function commandHandler(chat, client, message, command) {
         await updateLastSeen(from);
 
         //add increment
-        if(msgType.valid) {
+        if (msgType.valid) {
             await addIncrement(from);
             //send ads
             let dataNomor = await checkNomor(from);
-            if(dataNomor.increment % 5 == 0) {
-                await kirimPromosi(from,client);
+            if (dataNomor.increment % 5 == 0) {
+                await kirimPromosi(from, client);
             }
         }
 
@@ -270,65 +266,7 @@ async function commandHandler(chat, client, message, command) {
                 };
                 await sendMessageWTyping(listMessage, from);
             } else if (id == "shopee" || caption.toLowerCase() == "shopee") {
-                await kirimPromosi(from,client);
-                // await client.readMessages([chat.key]);
-                // let barangShopee = await getDataBarang();
-                // const sections = [
-                //     {
-                //         title: "Racun Shopee",
-                //         rows: barangShopee.map((brg) => {
-                //             return {
-                //                 title: brg.nama
-                //                     .split(" ")
-                //                     .slice(0, 10)
-                //                     .join(" "),
-                //                 rowId: "shopee" + brg.kode,
-                //                 description: brg.harga,
-                //             };
-                //         }),
-                //     },
-                // ];
-                // const textMenus = `Silakan dipilih kan beberapa barang barang rekomended yang ada di shopee.`;
-                // const listMessage = {
-                //     text: `*[${botname} BOT]*\n` + textMenus,
-                //     ListType: 2,
-                //     buttonText: "List Barang",
-                //     sections,
-                // };
-                // await sendMessageWTyping(listMessage, from);
-            }
-        }
-
-        if (msgType.type == "listRespone") {
-            let listID =
-                chat.message?.listResponseMessage?.singleSelectReply
-                    ?.selectedRowId;
-            if (listID.includes("shopee")) {
-                let kodeBarang = listID.replace("shopee", "");
-                let detailBarang = await getSingleDataBarang(kodeBarang);
-                const URLButton = [
-                    {
-                        index: 1,
-                        urlButton: {
-                            displayText: "Yuk Checkout💸",
-                            url: detailBarang[0].short,
-                        },
-                    },
-                ];
-
-                const templateMessage = {
-                    viewOnceMessage: {
-                        message: {
-                            templateMessage: {
-                                hydratedTemplate: {
-                                    hydratedContentText: `*${detailBarang[0].nama}*\n\n💰 Harga : ${detailBarang[0].harga}\n📦 Terjual : ${detailBarang[0].terjual}\nYuk di cek barangnya kak rekomended loh.\n*⬇️Klik Tombol dibawah ya kak ⬇️*`,
-                                    hydratedButtons: URLButton,
-                                },
-                            },
-                        },
-                    },
-                };
-                await client.relayMessage(from, templateMessage, {});
+                await kirimPromosi(from, client);
             }
         }
 
