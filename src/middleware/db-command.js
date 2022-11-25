@@ -1,10 +1,12 @@
 const { connection } = require("./db-mysql");
 
+const parseNomor = (nomor) => nomor.replace("@c.us","").replace("@s.whatsapp.net", "");
+
 async function checkNomor(nomor) {
     const sql = await connection();
     let errHandler;
     const res = await sql
-        .query(`SELECT * FROM NOMOR WHERE NOMOR LIKE '%${nomor}%'`)
+        .query(`SELECT * FROM NOMOR WHERE NOMOR LIKE '%${parseNomor(nomor)}%'`)
         .then(([rows]) => {
             return rows;
         })
@@ -78,7 +80,44 @@ async function saveNomor(nomor, nama) {
     }
 }
 
+async function addIncrement(nomor) {
+    const sql = await connection();
+    try {
+        let check = await checkNomor(nomor);
+        if (check.valid) {
+            await sql
+                .query(
+                    `UPDATE NOMOR
+                    SET TOTAL_HIT = TOTAL_HIT + 1
+                    WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
+                )
+                .finally(() => sql.end());
+            return {
+                status: 200,
+                valid: true,
+                message: "Increment Added",
+            };
+        } else {
+            await sql.end();
+            return {
+                status: 400,
+                valid: false,
+                message: "Contact Not registered",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        await sql.end();
+        return {
+            status: 400,
+            valid: false,
+            message: error,
+        };
+    }
+}
+
 module.exports = {
     checkNomor,
     saveNomor,
+    addIncrement
 };

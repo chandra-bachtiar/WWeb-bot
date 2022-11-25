@@ -1,9 +1,9 @@
-const { checkNomor,saveNomor } = require("../src/middleware/db-command");
+const { checkNomor,saveNomor, addIncrement } = require("../src/middleware/db-command");
 const dotenv = require('dotenv');
 const uniqid = require('uniqid'); 
 dotenv.config();
 const numberTesting = process.env.HPMASTER;
-jest.setTimeout(10000);
+jest.setTimeout(20000);
 
 
 describe('Mysql Function Testing', () => {
@@ -33,5 +33,16 @@ describe('Mysql Function Testing', () => {
         let arr = await saveNomor(`${numberTesting}`,"testing");
         expect(arr.valid).toBe(false);
     });
+
+    test("[addIncrement] Return must +1 from old hit", async () => {
+        let oldData = await checkNomor(numberTesting);
+        let oldHit = oldData.data.TOTAL_HIT;
+        await addIncrement(numberTesting);
+        let newData = await checkNomor(numberTesting);
+        let newHit = newData.data.TOTAL_HIT;
+        expect(newHit).toBe(oldHit+1);
+    });
+
+    
 });
 
