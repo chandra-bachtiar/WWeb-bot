@@ -33,9 +33,6 @@ const {
     onecak,
 } = require("./restAPIHandler");
 
-//mysql
-const { checkNomorHp } = require("./middleware/db-command");
-
 const { kirimPromosi } = require("./shoppe");
 
 const botname = process.env.BOTNAME;
@@ -51,6 +48,9 @@ async function commandHandler(chat, client, message, command) {
     };
 
     const msgType = await chatType(chat);
+    if(msgType.type == 'Unknow') {
+        console.log(chat);
+    }
     const from = chat.key.remoteJid || "";
     const nama = chat.pushName || "";
 
