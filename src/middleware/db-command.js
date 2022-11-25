@@ -24,17 +24,61 @@ async function checkNomor(nomor) {
             data: res[0],
         };
     } else {
-        if(res.length !== 1) {
+        if (res.length !== 1) {
             errHandler = "Array is less or more than 1";
         }
         return {
             status: 400,
             valid: false,
-            error : errHandler,
+            error: errHandler,
+        };
+    }
+}
+
+async function saveNomor(nomor, nama) {
+    const sql = await connection();
+    try {
+        let check = await checkNomor(nomor);
+        if (!check.valid) {
+            let id;
+            await sql
+                .query(
+                    `INSERT INTO NOMOR(NAMA,NOMOR) VALUES ('${nama}','${nomor}');`
+                )
+                .then((res) => {
+                    if (res[0].affectedRows > 0) {
+                        id = res[0].insertId;
+                    }
+                })
+                .finally(() => sql.end());
+            return {
+                status: 200,
+                valid: true,
+                data: {
+                    id: id,
+                },
+                message: "Contact Number inserted!",
+            };
+        } else {
+            await sql.end();
+            return {
+                status: 400,
+                valid: false,
+                message: "Contact already registered",
+            };
         }
+    } catch (error) {
+        console.log(error);
+        await sql.end();
+        return {
+            status: 400,
+            valid: false,
+            message: error,
+        };
     }
 }
 
 module.exports = {
     checkNomor,
+    saveNomor,
 };
