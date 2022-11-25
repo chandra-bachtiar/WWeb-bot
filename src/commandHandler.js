@@ -74,7 +74,7 @@ async function commandHandler(chat, client, message, command) {
             await addIncrement(from);
             //send ads
             let dataNomor = await checkNomor(from);
-            if (dataNomor.increment % 5 == 0) {
+            if (dataNomor.data.TOTAL_HIT % 5 == 0) {
                 await kirimPromosi(from, client);
             }
         }
