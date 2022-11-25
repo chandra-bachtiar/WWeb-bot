@@ -1,36 +1,42 @@
-const { checkNomor,saveNomor, addIncrement, updateLastSeen } = require("../src/middleware/db-command");
-const dotenv = require('dotenv');
-const uniqid = require('uniqid'); 
+const {
+    checkNomor,
+    saveNomor,
+    addIncrement,
+    updateLastSeen,
+    resetWelcomingMessage,
+    welcomingMessage
+} = require("../src/middleware/db-command");
+const dotenv = require("dotenv");
+const uniqid = require("uniqid");
 dotenv.config();
 const numberTesting = process.env.HPMASTER;
 jest.setTimeout(20000);
 
-
-describe('Mysql Function Testing', () => {
+describe("Mysql Function Testing", () => {
     test("[CheckNomor] Return Must be an true", async () => {
         let arr = await checkNomor(numberTesting);
-        expect(arr.valid).toBe(true)
+        expect(arr.valid).toBe(true);
     });
 
     test("[CheckNomor] Return Must be an false", async () => {
-        let arr = await checkNomor('xxx');
-        expect(arr.valid).toBe(false)
+        let arr = await checkNomor("xxx");
+        expect(arr.valid).toBe(false);
     });
 
     test("[saveNomor] Return must be an true", async () => {
         let id = uniqid();
-        let arr = await saveNomor(`000-${id}`,"testing");
+        let arr = await saveNomor(`000-${id}`, "testing");
         expect(arr.valid).toBe(true);
     });
 
     test("[saveNomor] Return must be an id of integer", async () => {
         let id = uniqid();
-        let arr = await saveNomor(`000-${id}`,"testing");
+        let arr = await saveNomor(`000-${id}`, "testing");
         expect(typeof arr.data.id).toBe("number");
     });
 
     test("[saveNomor] Return must be an true", async () => {
-        let arr = await saveNomor(`${numberTesting}`,"testing");
+        let arr = await saveNomor(`${numberTesting}`, "testing");
         expect(arr.valid).toBe(false);
     });
 
@@ -40,7 +46,7 @@ describe('Mysql Function Testing', () => {
         await addIncrement(numberTesting);
         let newData = await checkNomor(numberTesting);
         let newHit = newData.data.TOTAL_HIT;
-        expect(newHit).toBe(oldHit+1);
+        expect(newHit).toBe(oldHit + 1);
     });
 
     test("[updateLastSeen] Data Mush diferent from old data", async () => {
@@ -51,8 +57,17 @@ describe('Mysql Function Testing', () => {
         let newHit = newData.data.LAST_SEEN;
         let isSame = oldHit === newHit ? true : false;
         expect(isSame).toBe(false);
-    })
+    });
 
+    test("[resetWelcomingMessage] Reset all must return true", async () => {
+        let change = await resetWelcomingMessage();
+        let isChange = change.data.affected > 0 ? true : false;
+        expect(isChange).toBe(true);
+    });
 
+    test("[welcomingMessage] Update or Check must return isWelcome false", async () => {
+        let welcome = await welcomingMessage(numberTesting);
+        let isWelcome = welcome.isWelcome;
+        expect(isWelcome).toBe(false);
+    });
 });
-

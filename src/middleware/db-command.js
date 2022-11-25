@@ -1,6 +1,7 @@
 const { connection } = require("./db-mysql");
 
-const parseNomor = (nomor) => nomor.replace("@c.us","").replace("@s.whatsapp.net", "");
+const parseNomor = (nomor) =>
+    nomor.replace("@c.us", "").replace("@s.whatsapp.net", "");
 
 async function checkNomor(nomor) {
     const sql = await connection();
@@ -124,7 +125,7 @@ async function updateLastSeen(nomor) {
             await sql
                 .query(
                     `UPDATE NOMOR
-                    SET LAST_SEEN = '${+new Date}'
+                    SET LAST_SEEN = '${+new Date()}'
                     WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
                 )
                 .finally(() => sql.end());
@@ -152,9 +153,79 @@ async function updateLastSeen(nomor) {
     }
 }
 
+async function resetWelcomingMessage() {
+    const sql = await connection();
+    try {
+        let res = await sql
+            .query(`UPDATE NOMOR SET WELCOMING = 0`)
+            .finally(() => sql.end());
+        return {
+            status: 200,
+            valid: true,
+            data: {
+                affected: res[0].affectedRows,
+            },
+            message: "Welcoming Reseted",
+        };
+    } catch (error) {
+        console.log(error);
+        await sql.end();
+        return {
+            status: 400,
+            valid: false,
+            message: error,
+        };
+    }
+}
+
+async function welcomingMessage(nomor) {
+    const sql = await connection();
+    try {
+        let check = await checkNomor(nomor);
+        if (check.valid) {
+            if (check.data.WELCOMING == 0) {
+                await sql
+                    .query(
+                        `UPDATE NOMOR
+                    SET WELCOMING = 1
+                    WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
+                    )
+                    .finally(() => sql.end());
+
+                return {
+                    status: 200,
+                    isWelcome: false,
+                };
+            } else {
+                return {
+                    status: 200,
+                    isWelcome: true,
+                };
+            }
+        } else {
+            await sql.end();
+            return {
+                status: 400,
+                valid: false,
+                message: "Contact Not registered",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        await sql.end();
+        return {
+            status: 400,
+            valid: false,
+            message: error,
+        };
+    }
+}
+
 module.exports = {
     checkNomor,
     saveNomor,
     addIncrement,
-    updateLastSeen
+    updateLastSeen,
+    resetWelcomingMessage,
+    welcomingMessage,
 };
