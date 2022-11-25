@@ -1,4 +1,4 @@
-const { checkNomor,saveNomor, addIncrement } = require("../src/middleware/db-command");
+const { checkNomor,saveNomor, addIncrement, updateLastSeen } = require("../src/middleware/db-command");
 const dotenv = require('dotenv');
 const uniqid = require('uniqid'); 
 dotenv.config();
@@ -43,6 +43,16 @@ describe('Mysql Function Testing', () => {
         expect(newHit).toBe(oldHit+1);
     });
 
-    
+    test("[updateLastSeen] Data Mush diferent from old data", async () => {
+        let oldData = await checkNomor(numberTesting);
+        let oldHit = oldData.data.LAST_SEEN;
+        await updateLastSeen(numberTesting);
+        let newData = await checkNomor(numberTesting);
+        let newHit = newData.data.LAST_SEEN;
+        let isSame = oldHit === newHit ? true : false;
+        expect(isSame).toBe(false);
+    })
+
+
 });
 

@@ -116,8 +116,45 @@ async function addIncrement(nomor) {
     }
 }
 
+async function updateLastSeen(nomor) {
+    const sql = await connection();
+    try {
+        let check = await checkNomor(nomor);
+        if (check.valid) {
+            await sql
+                .query(
+                    `UPDATE NOMOR
+                    SET LAST_SEEN = '${+new Date}'
+                    WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
+                )
+                .finally(() => sql.end());
+            return {
+                status: 200,
+                valid: true,
+                message: "Last seen Change",
+            };
+        } else {
+            await sql.end();
+            return {
+                status: 400,
+                valid: false,
+                message: "Contact Not registered",
+            };
+        }
+    } catch (error) {
+        console.log(error);
+        await sql.end();
+        return {
+            status: 400,
+            valid: false,
+            message: error,
+        };
+    }
+}
+
 module.exports = {
     checkNomor,
     saveNomor,
-    addIncrement
+    addIncrement,
+    updateLastSeen
 };
