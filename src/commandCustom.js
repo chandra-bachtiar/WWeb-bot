@@ -2,10 +2,9 @@ const {
     pengeluaran,
     getRekap,
     deleteRow,
-    recountingId,
     pemasukan,
     getAkunKas,
-    pindahKas
+    pindahKas,
 } = require("./worksheet.js");
 const { delay } = require("@adiwajshing/baileys");
 const dotenv = require("dotenv");
@@ -25,7 +24,8 @@ async function commandCustom(chat, client, master) {
         "CICILAN",
         "JASA",
         "SANDANG",
-        "OBAT"
+        "OBAT",
+        "KOSAN"
     ];
 
     const numberFrom = chat.key.remoteJid || "";
@@ -33,7 +33,7 @@ async function commandCustom(chat, client, master) {
         numberFrom.replace("@s.whatsapp.net", "") === master[0]
             ? namaMaster[0]
             : namaMaster[1];
-    const caption = chat?.message?.extendedTextMessage?.text || "";
+    const caption = chat?.message?.extendedTextMessage?.text || chat?.message?.conversation || "";
 
     const sendMessageWTyping = async (chat, numberFrom) => {
         await client.presenceSubscribe(numberFrom);
@@ -45,43 +45,37 @@ async function commandCustom(chat, client, master) {
     };
 
     if (caption.includes("#pengeluaran")) {
-        const jenisnya = caption.split(" ")[1];
-        const nominal = caption.split(" ")[2];
-        const keterangan = caption.split(" ").slice(3).join(" ");
-        if (!JENIS.includes(jenisnya.toUpperCase())) {
+        console.log("test");
+        try {
+            const jenisnya = caption.split(" ")[1];
+            const nominal = caption.split(" ")[2];
+            const keterangan = caption.split(" ").slice(3).join(" ");
+            if (!JENIS.includes(jenisnya.toUpperCase())) {
+                await sendMessageWTyping(
+                    { text: "Jenis pengeluaran tidak ditemukan" },
+                    numberFrom
+                );
+                await sendMessageWTyping(
+                    { text: "#jenis untuk melihat semua jenis pengeluaran!" },
+                    numberFrom
+                );
+                return;
+            }
+            pengeluaran(nominal, nama, jenisnya, keterangan);
             await sendMessageWTyping(
-                { text: "Jenis pengeluaran tidak ditemukan" },
+                { text: "Pengeluaran Berhasil ditambahkan, Terima Kasih." },
                 numberFrom
             );
-            await sendMessageWTyping(
-                { text: "#jenis untuk melihat semua jenis pengeluaran!" },
-                numberFrom
-            );
-            return;
+        } catch (error) {
+            console.log(error);
         }
-        pengeluaran(nominal, nama, jenisnya, keterangan);
-        await sendMessageWTyping(
-            { text: "Pengeluaran Berhasil ditambahkan, Terima Kasih." },
-            numberFrom
-        );
     }
 
     if (caption.includes("#pemasukan")) {
         const kode = caption.split(" ")[1];
         const nominal = caption.split(" ")[2];
         const keterangan = caption.split(" ").slice(3).join(" ");
-        // if (!JENIS.includes(kode.toUpperCase())) {
-        //     await sendMessageWTyping(
-        //         { text: "Kode Akun tidak ditemukan" },
-        //         numberFrom
-        //     );
-        //     await sendMessageWTyping(
-        //         { text: "#kode untuk melihat semua kode akun!" },
-        //         numberFrom
-        //     );
-        //     return;
-        // }
-        pemasukan(kode,keterangan,nominal);
+        pemasukan(kode, keterangan, nominal);
         await sendMessageWTyping(
             { text: "Pemasukan Berhasil ditambahkan, Terima Kasih." },
             numberFrom
@@ -93,18 +87,7 @@ async function commandCustom(chat, client, master) {
         const keAkun = caption.split(" ")[2];
         const nominal = caption.split(" ")[3];
         const keterangan = caption.split(" ").slice(4).join(" ");
-        // if (!JENIS.includes(kode.toUpperCase())) {
-        //     await sendMessageWTyping(
-        //         { text: "Kode Akun tidak ditemukan" },
-        //         numberFrom
-        //     );
-        //     await sendMessageWTyping(
-        //         { text: "#kode untuk melihat semua kode akun!" },
-        //         numberFrom
-        //     );
-        //     return;
-        // }
-        pindahKas(dariAkun,keAkun,nominal,keterangan);
+        pindahKas(dariAkun, keAkun, nominal, keterangan);
         await sendMessageWTyping(
             { text: "Pindah Kas Berhasil ditambahkan, Terima Kasih." },
             numberFrom
@@ -113,36 +96,19 @@ async function commandCustom(chat, client, master) {
 
     if (caption.includes("#kas")) {
         let res = await getAkunKas();
-        let text = '*KAS*\n';
-        text += ' - - - - - - - - - -\n';
+        let text = "*KAS*\n";
+        text += " - - - - - - - - - -\n";
         let total = 0;
         for (let i = 0; i < res.length; i++) {
             const el = res[i];
             total += parseInt(el[3]);
-            text += `*${el[0]}* - ${el[1]} - ${el[2]} \n======> Rp. *${parseInt(el[3]).toLocaleString("id-ID")}*\n`;
+            text += `*${el[0]}* - ${el[1]} - ${el[2]} \n======> Rp. *${parseInt(
+                el[3]
+            ).toLocaleString("id-ID")}*\n`;
         }
-        text += ' - - - - - - - - - -\n';
+        text += " - - - - - - - - - -\n";
         text += `*SUBTOTAL : Rp. ${parseInt(total).toLocaleString("id-ID")}*`;
-        // const dariAkun = caption.split(" ")[1];
-        // const keAkun = caption.split(" ")[2];
-        // const nominal = caption.split(" ")[3];
-        // const keterangan = caption.split(" ").slice(4).join(" ");
-        // if (!JENIS.includes(kode.toUpperCase())) {
-        //     await sendMessageWTyping(
-        //         { text: "Kode Akun tidak ditemukan" },
-        //         numberFrom
-        //     );
-        //     await sendMessageWTyping(
-        //         { text: "#kode untuk melihat semua kode akun!" },
-        //         numberFrom
-        //     );
-        //     return;
-        // }
-        // console.log(await getAkunKas());
-        await sendMessageWTyping(
-            { text: text },
-            numberFrom
-        );
+        await sendMessageWTyping({ text: text }, numberFrom);
     }
 
     if (caption.includes("#detail")) {
