@@ -11,7 +11,7 @@ const notify = (fun) => {
 async function checkNomor(nomor) {
     let errHandler;
     const res = await sql
-        .query(`SELECT * FROM NOMOR WHERE NOMOR LIKE '%${parseNomor(nomor)}%'`)
+        .query(`SELECT IDNOMOR,NAMA,NOMOR,COALESCE(TOTAL_HIT,0) TOTAL_HIT,WELCOMING,LAST_SEEN FROM NOMOR WHERE NOMOR LIKE '%${parseNomor(nomor)}%'`)
         .then(([rows]) => {
             return rows;
         })
