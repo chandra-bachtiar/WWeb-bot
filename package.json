@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "start": "node index.js"
   },
   "author": "",
   "type": "commonjs",
@@ -18,6 +19,7 @@
     "@adiwajshing/baileys": "^4.4.0",
     "@hapi/boom": "^10.0.0",
     "axios": "^0.27.2",
+    "chalk": "^4.1.2",
     "crypto-js": "^4.1.1",
     "dotenv": "^16.0.3",
     "googleapis": "^107.0.0",

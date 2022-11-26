@@ -47,39 +47,41 @@ async function commandHandler(chat, client, message, command) {
         await client.sendMessage(numberFrom, chat);
     };
 
+
+
+
     const msgType = await chatType(chat);
     if(msgType.type == 'Unknow') {
         console.log(chat);
     }
     const from = chat.key.remoteJid || "";
     const nama = chat.pushName || "";
+    let dataNomor = await checkNomor(from);
+
 
     if (from === "") {
         console.log(`[${botname}] Oops failed get number from!`);
         return;
     }
 
-    //Database validation
-    // console.log(msgType);
     if (msgType.type === "protocol" || msgType.type === "protocolImage") {
         let nmr = chat.key.participant || "";
-        await saveNomor(nmr, nama);
-        await updateLastSeen(nmr);
+        await saveNomor(nmr, nama, dataNomor);
+        await updateLastSeen(nmr, dataNomor);
     } else {
-        await saveNomor(from, nama);
-        await updateLastSeen(from);
+        await saveNomor(from, nama, dataNomor);
+        await updateLastSeen(from, dataNomor);
 
         //add increment
         if (msgType.valid) {
-            await addIncrement(from);
+            await addIncrement(from,dataNomor);
             //send ads
-            let dataNomor = await checkNomor(from);
             if (dataNomor.data.TOTAL_HIT % 5 == 0) {
                 await kirimPromosi(from, client);
             }
         }
 
-        let res = await welcomingMessage(from);
+        let res = await welcomingMessage(from,dataNomor);
         if (res.isWelcome === false) {
             await client.readMessages([chat.key]);
             const buttons = [

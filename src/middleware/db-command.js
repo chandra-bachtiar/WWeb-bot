@@ -1,14 +1,19 @@
-const { connection } = require("./db-mysql");
+const chalk = require("chalk");
+const sql = require("./db-mysql");
 
 const parseNomor = (nomor) =>
     nomor.replace("@c.us", "").replace("@s.whatsapp.net", "");
 
+const notify = (fun) => {
+    console.log(chalk.green("[DB] ") + "Release on " + fun);
+}
+
 async function checkNomor(nomor) {
-    const sql = await connection();
     let errHandler;
     const res = await sql
         .query(`SELECT * FROM NOMOR WHERE NOMOR LIKE '%${parseNomor(nomor)}%'`)
         .then(([rows]) => {
+            console.log(rows)
             return rows;
         })
         .catch((err) => {
@@ -18,8 +23,7 @@ async function checkNomor(nomor) {
             };
             console.log(errHandler);
         })
-        .finally(() => sql.end());
-
+        .finally(() => notify("checkNomor"));
     if (Array.isArray(res) && res.length == 1) {
         return {
             status: 200,
@@ -38,10 +42,8 @@ async function checkNomor(nomor) {
     }
 }
 
-async function saveNomor(nomor, nama) {
-    const sql = await connection();
+async function saveNomor(nomor, nama, check) {
     try {
-        let check = await checkNomor(nomor);
         if (!check.valid) {
             let id;
             await sql
@@ -53,7 +55,7 @@ async function saveNomor(nomor, nama) {
                         id = res[0].insertId;
                     }
                 })
-                .finally(() => sql.end());
+                .finally(() => notify("saveNomor"));
             return {
                 status: 200,
                 valid: true,
@@ -63,7 +65,6 @@ async function saveNomor(nomor, nama) {
                 message: "Contact Number inserted!",
             };
         } else {
-            await sql.end();
             return {
                 status: 400,
                 valid: false,
@@ -72,7 +73,6 @@ async function saveNomor(nomor, nama) {
         }
     } catch (error) {
         console.log(error);
-        await sql.end();
         return {
             status: 400,
             valid: false,
@@ -81,10 +81,8 @@ async function saveNomor(nomor, nama) {
     }
 }
 
-async function addIncrement(nomor) {
-    const sql = await connection();
+async function addIncrement(nomor,check) {
     try {
-        let check = await checkNomor(nomor);
         if (check.valid) {
             await sql
                 .query(
@@ -92,14 +90,13 @@ async function addIncrement(nomor) {
                     SET TOTAL_HIT = TOTAL_HIT + 1
                     WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
                 )
-                .finally(() => sql.end());
+                .finally(() => notify("addIncrement"));
             return {
                 status: 200,
                 valid: true,
                 message: "Increment Added",
             };
         } else {
-            await sql.end();
             return {
                 status: 400,
                 valid: false,
@@ -108,7 +105,6 @@ async function addIncrement(nomor) {
         }
     } catch (error) {
         console.log(error);
-        await sql.end();
         return {
             status: 400,
             valid: false,
@@ -117,10 +113,8 @@ async function addIncrement(nomor) {
     }
 }
 
-async function updateLastSeen(nomor) {
-    const sql = await connection();
+async function updateLastSeen(nomor, check) {
     try {
-        let check = await checkNomor(nomor);
         if (check.valid) {
             await sql
                 .query(
@@ -128,14 +122,13 @@ async function updateLastSeen(nomor) {
                     SET LAST_SEEN = '${+new Date()}'
                     WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
                 )
-                .finally(() => sql.end());
+                .finally(() => notify("updateLastSeen"));
             return {
                 status: 200,
                 valid: true,
                 message: "Last seen Change",
             };
         } else {
-            await sql.end();
             return {
                 status: 400,
                 valid: false,
@@ -144,7 +137,6 @@ async function updateLastSeen(nomor) {
         }
     } catch (error) {
         console.log(error);
-        await sql.end();
         return {
             status: 400,
             valid: false,
@@ -154,11 +146,10 @@ async function updateLastSeen(nomor) {
 }
 
 async function resetWelcomingMessage() {
-    const sql = await connection();
     try {
         let res = await sql
             .query(`UPDATE NOMOR SET WELCOMING = 0`)
-            .finally(() => sql.end());
+            .finally(() => notify("resetWelcomingMessage"));
         return {
             status: 200,
             valid: true,
@@ -169,7 +160,6 @@ async function resetWelcomingMessage() {
         };
     } catch (error) {
         console.log(error);
-        await sql.end();
         return {
             status: 400,
             valid: false,
@@ -178,10 +168,8 @@ async function resetWelcomingMessage() {
     }
 }
 
-async function welcomingMessage(nomor) {
-    const sql = await connection();
+async function welcomingMessage(nomor,check) {
     try {
-        let check = await checkNomor(nomor);
         if (check.valid) {
             if (check.data.WELCOMING == 0) {
                 await sql
@@ -190,7 +178,7 @@ async function welcomingMessage(nomor) {
                     SET WELCOMING = 1
                     WHERE NOMOR LIKE '%${parseNomor(nomor)}%';`
                     )
-                    .finally(() => sql.end());
+                    .finally(() => notify("welcomingMessage"));
 
                 return {
                     status: 200,
@@ -203,7 +191,6 @@ async function welcomingMessage(nomor) {
                 };
             }
         } else {
-            await sql.end();
             return {
                 status: 400,
                 valid: false,
@@ -212,7 +199,6 @@ async function welcomingMessage(nomor) {
         }
     } catch (error) {
         console.log(error);
-        await sql.end();
         return {
             status: 400,
             valid: false,
