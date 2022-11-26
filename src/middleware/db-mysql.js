@@ -1,7 +1,11 @@
 const chalk = require("chalk");
 const mysql = require("mysql2/promise");
 
-console.log(chalk.green.bold("Creating mysql pool . . ."));
+const notify = (fun) => {
+    console.log(chalk.green("[DB] ") + fun);
+}
+
+notify("Creating mysql pool . . .")
 const pool = mysql.createPool({
     host: process.env.MYSQL_HOST,
     user: process.env.MYSQL_USER,
@@ -11,7 +15,7 @@ const pool = mysql.createPool({
 });
 
 pool.on("connection", function (con) {
-    console.log(chalk.yellow.bold("Connection Established"));
+    notify("Connection Established")
 
     con.on("error", function (err) {
         console.log(err);
@@ -24,7 +28,7 @@ pool.on("connection", function (con) {
 
 pool.getConnection((err, connection) => {
     if (err) throw err;
-    console.log("Database connected successfully");
+    notify("Connected!")
     connection.release();
 });
 

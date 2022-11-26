@@ -13,7 +13,6 @@ async function checkNomor(nomor) {
     const res = await sql
         .query(`SELECT * FROM NOMOR WHERE NOMOR LIKE '%${parseNomor(nomor)}%'`)
         .then(([rows]) => {
-            console.log(rows)
             return rows;
         })
         .catch((err) => {
