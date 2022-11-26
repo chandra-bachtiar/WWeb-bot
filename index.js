@@ -124,7 +124,6 @@ async function startBot() {
 
         if (events["messages.upsert"]) {
             const upsert = events["messages.upsert"];
-            console.log(upsert);
             const kerjaan = [
                 "6281121111537",
                 "6281121111538",
